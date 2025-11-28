@@ -1,7 +1,8 @@
 import re
 import spacy
 
-nlp = spacy.load("en_core_web_sm")
+nlp = spacy.blank("en")
+
 
 # --------- DATE ---------
 date_pattern = r"\b(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})\b"
