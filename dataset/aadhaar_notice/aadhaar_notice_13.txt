@@ -1,0 +1,4 @@
+Aadhaar Address Reupdate Required
+
+This notice is issued because your Aadhaar address has been marked “unverified” during data cleaning.  
+Submit POA within 15 days.

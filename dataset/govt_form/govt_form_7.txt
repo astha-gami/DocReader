@@ -1,0 +1,6 @@
+Ration Card Addition Form  
+For adding a new family member.  
+Submit:
+- Birth Certificate
+- Aadhaar  
+- Address Proof

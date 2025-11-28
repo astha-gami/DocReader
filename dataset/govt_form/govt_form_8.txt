@@ -1,0 +1,3 @@
+
+Bank Account Opening Form  
+Requires full KYC details, nomination form, and Aadhaar verification.

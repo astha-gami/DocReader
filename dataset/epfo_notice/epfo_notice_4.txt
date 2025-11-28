@@ -1,0 +1,3 @@
+EPFO Notice – Bank Account Mismatch  
+Bank account details do not match records.  
+Submit cancelled cheque and Aadhaar.

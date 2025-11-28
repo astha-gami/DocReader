@@ -1,0 +1,3 @@
+GST Mismatch Alert  
+Difference detected between outward supplies and e-way bill data.  
+Submit clarification.

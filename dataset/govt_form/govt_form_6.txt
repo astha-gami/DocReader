@@ -1,0 +1,9 @@
+Income Certificate Application Form  
+State Government Welfare Department  
+
+Applicant must fill:
+- Name
+- Father’s Name
+- Occupation
+- Annual Income Details  
+Attach supporting income proofs.

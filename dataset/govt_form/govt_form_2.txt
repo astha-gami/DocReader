@@ -1,0 +1,11 @@
+Aadhaar Enrollment/Update Form
+Use this form to update demographic information including Name, DOB, Gender, Address, Mobile Number, and Email.
+
+Applicant Details:
+• Name
+• Date of Birth
+• Address
+• Mobile Number
+
+Instructions:
+Carry original documents for verification. This form must be submitted at authorized enrollment centers only.

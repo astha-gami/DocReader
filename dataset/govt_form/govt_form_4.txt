@@ -1,0 +1,11 @@
+Central Government Health Scheme (CGHS) Form
+
+Fields:
+- Name of Applicant
+- Residential Address
+- Government Employee ID
+- Dependents Information
+- Aadhaar Number
+
+Instructions:
+Attach supporting documents and submit to CGHS department.

@@ -1,4 +1,4 @@
-from ai_engine.ocr import extract_text_from_pdf
+from ai_engine.ocr_cloud import extract_text_from_pdf_cloud
 from ai_engine.classifier import classify_text
 
 from ai_engine.extract_aadhaar import extract_aadhaar
@@ -22,7 +22,8 @@ ocr_cache = {}
 
 def analyze_document(pdf_path):
 
-    raw_text = extract_text_from_pdf(pdf_path)
+    raw_text = extract_text_from_pdf_cloud(pdf_path)
+
     text = clean_text(raw_text)
 
     doc_type = classify_text(text).lower()

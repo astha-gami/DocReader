@@ -1,0 +1,15 @@
+Indian Passport Application Form
+Ministry of External Affairs
+
+Applicant must fill:
+- Given name
+- Surname
+- Date of birth
+- Citizenship
+- Address details
+- Previous passport details
+
+Documents Required:
+- Birth certificate
+- Address proof
+- Identity verification document
