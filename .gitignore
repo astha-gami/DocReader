@@ -1,0 +1,23 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# OCR temp files
+*.png
+*.jpg
+*.jpeg
+*.log
+*.txt
+
+# Local dev files
+day*_*.py
+basics.py
+image.py
+final_day2.py
+
+# Environment
+.env
+
+# VSCode
+.vscode/
+

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DocReader - AI Document Analyzer</title>
+
+    <style>
+        body {
+            font-family: Inter, Arial, sans-serif;
+            background: #f0f2f5;
+            padding: 30px;
+        }
+
+        .container {
+            width: 550px;
+            background: white;
+            margin: auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #1a73e8;
+        }
+
+        input[type="file"] {
+            display: block;
+            margin: auto;
+            margin-bottom: 20px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #155fc4;
+        }
+
+        #loader {
+            display: none;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 18px;
+            color: #444;
+        }
+
+        .section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #eef4ff;
+            border-radius: 8px;
+        }
+
+        .section h2 {
+            margin-top: 0;
+            font-size: 18px;
+            color: #1a4bb8;
+            border-bottom: 1px solid #c9d8ff;
+            padding-bottom: 5px;
+        }
+
+        .field {
+            margin: 6px 0;
+            font-size: 15px;
+        }
+
+        .value {
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <h1>DocReader</h1>
+
+    <form id="uploadForm">
+        <input type="file" id="pdfFile" accept="application/pdf" required>
+        <button type="submit">Analyze Document</button>
+    </form>
+
+    <div id="loader">Analyzing your PDF… ⏳</div>
+
+    <div id="output"></div>
+
+</div>
+
+<script>
+document.getElementById("uploadForm").onsubmit = async function(e) {
+    e.preventDefault();
+
+    const file = document.getElementById("pdfFile").files[0];
+    if (!file) {
+        alert("Please upload a PDF.");
+        return;
+    }
+
+    document.getElementById("loader").style.display = "block";
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch("/analyze", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await response.json();
+    document.getElementById("loader").style.display = "none";
+
+    // Render Output Nicely
+    renderOutput(data);
+};
+
+
+function renderOutput(data) {
+    const container = document.getElementById("output");
+    container.innerHTML = "";
+
+    container.innerHTML += createSection("Document Type", data.doc_type);
+    container.innerHTML += createSection("Deadline", data.deadline);
+    container.innerHTML += createSection("Actions Required", data.actions_required?.join("<br>"));
+    container.innerHTML += createSection("Where to Submit", data.where_to_submit);
+    container.innerHTML += createSection("Penalty", data.penalty ? JSON.stringify(data.penalty, null, 2) : "None");
+    container.innerHTML += createSection("Summary", data.summary);
+    container.innerHTML += createSection("AI Advice", data.ai_advice);
+}
+
+function createSection(title, content) {
+    if (!content) return "";
+    return `
+        <div class="section">
+            <h2>${title}</h2>
+            <div class="field"><span class="value">${content}</span></div>
+        </div>
+    `;
+}
+</script>
+
+</body>
+</html>
