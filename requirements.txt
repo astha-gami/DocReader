@@ -1,0 +1,12 @@
+Flask
+pytesseract
+pdf2image
+Pillow
+opencv-python
+numpy
+spacy
+scikit-learn
+joblib
+Werkzeug
+gunicorn
+requests
