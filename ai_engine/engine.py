@@ -55,4 +55,12 @@ def analyze_document(pdf_path):
     info["summary"] = generate_summary(info)
     info["ai_advice"] = generate_ai_advice(info)
 
+# handle missing fields
+    info["dates"] = info.get("dates", []) or ["Not found"]
+    info["notice_numbers"] = info.get("notice_numbers", []) or ["Not found"]
+    info["actions_required"] = info.get("actions_required", []) or ["Not found"]
+    info["recommended_action"] = info.get("recommended_action", "Not found")
+    info["deadline"] = info.get("deadline", "Not found")
+    info["where_to_submit"] = info.get("where_to_submit", "Not found")
+
     return info

@@ -1,19 +1,9 @@
 def generate_summary(info):
-    doc = info.get("doc_type", "document")
-    deadline = info.get("deadline")
+    doc_type = info.get("doc_type", "document")
+    deadline = info.get("deadline", "Not found")
 
-    actions = info.get("actions_required", [])
-    action_text = actions[0] if actions else None
+    return f"This is a {doc_type}. Deadline: {deadline}. Required documents: {', '.join(info.get('requires_documents', []))}."
 
-    summary = f"This is an {doc}."
-
-    if action_text:
-        summary += f" It instructs you to {action_text.lower()}."
-
-    if deadline:
-        summary += f" The deadline is {deadline}."
-
-    return summary
 
 
 
