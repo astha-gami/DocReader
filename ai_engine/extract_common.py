@@ -30,16 +30,27 @@ action_keywords = [
 
 def extract_actions(text):
     lines = text.split("\n")
-    result = []
+    actions = []
 
     for line in lines:
         clean = line.strip()
-        if len(clean) < 15:
-            continue
-        if any(k in clean.lower() for k in action_keywords):
-            result.append(clean)
 
-    return result[:3]
+        # Skip very long lines (avoid full paragraphs)
+        if len(clean) > 120:
+            continue
+
+        # Skip short useless lines
+        if len(clean) < 10:
+            continue
+
+        # Check for action keywords
+        if any(k in clean.lower() for k in action_keywords):
+            actions.append(clean)
+
+    # Limit to top 3 meaningful lines
+    return sorted(actions, key=len)[:3]   # smallest, most meaningful lines first
+
+
 
 # --------- ENTITIES ---------
 def extract_entities(text):
