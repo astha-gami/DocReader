@@ -63,6 +63,6 @@ def analyze_document(pdf_path):
     info["deadline"] = info.get("deadline", "Not found")
     info["where_to_submit"] = info.get("where_to_submit", "Not found")
 
-info["raw_text"] = text
+    info["raw_text"] = text
 
     return info
