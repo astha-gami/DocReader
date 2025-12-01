@@ -32,46 +32,27 @@
         }
 
         button {
-            width: 100%;
-            padding: 12px;
+            padding: 10px 14px;
             background: #1a73e8;
             color: white;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         button:hover {
             background: #155fc4;
         }
 
-        /* Loading Spinner */
         #loader {
             display: none;
             text-align: center;
-            margin-top: 20px;
+            margin-top: 15px;
             font-size: 18px;
             color: #444;
         }
 
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #4caf50;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: auto;
-            margin-bottom: 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Output Section */
         .section {
             margin-top: 20px;
             padding: 15px;
@@ -88,9 +69,21 @@
         }
 
         .value {
-            font-weight: bold;
+            font-weight: 500;
             color: #333;
             line-height: 1.4;
+        }
+
+        .button-row {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .button-row button {
+            flex: 1;
+            text-align: center;
         }
     </style>
 </head>
@@ -102,12 +95,11 @@
 
     <form id="uploadForm">
         <input type="file" id="pdfFile" accept="application/pdf" required>
-        <button type="submit">Analyze Document</button>
+        <button type="submit" style="width:100%;">Analyze Document</button>
     </form>
 
     <!-- Loader -->
     <div id="loader">
-        <div class="spinner"></div>
         Analyzing your document… ⏳
     </div>
 
@@ -117,6 +109,8 @@
 </div>
 
 <script>
+let lastResult = null;
+
 document.getElementById("uploadForm").onsubmit = async function(e) {
     e.preventDefault();
 
@@ -126,57 +120,77 @@ document.getElementById("uploadForm").onsubmit = async function(e) {
         return;
     }
 
-    // Show loader
     document.getElementById("loader").style.display = "block";
+    document.getElementById("output").innerHTML = "";
 
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await fetch("/analyze", {
-        method: "POST",
-        body: formData
-    });
+    try {
+        const response = await fetch("/analyze", {
+            method: "POST",
+            body: formData
+        });
 
-    const data = await response.json();
+        const data = await response.json();
+        document.getElementById("loader").style.display = "none";
 
-    // Hide loader
-    document.getElementById("loader").style.display = "none";
+        lastResult = data; // save globally for downloadJSON
 
-    // Render formatted output
-    renderOutput(data);
+        renderOutput(data);
+    } catch (err) {
+        document.getElementById("loader").style.display = "none";
+        alert("Something went wrong while analyzing the document.");
+        console.error(err);
+    }
 };
 
 function renderOutput(data) {
     const container = document.getElementById("output");
-    container.innerHTML = "";  // Clear previous results
+    container.innerHTML = "";  // clear previous
 
     container.innerHTML += createSection("Document Type", data.doc_type);
     container.innerHTML += createSection("Deadline", data.deadline);
     container.innerHTML += createSection("Actions Required", data.actions_required?.join("<br>"));
     container.innerHTML += createSection("Where to Submit", data.where_to_submit);
-    container.innerHTML += createSection("Penalty", data.penalty ? JSON.stringify(data.penalty, null, 2) : "None");
+
+    // Penalty (readable)
+    let penaltyText = "None";
+    if (data.penalty) {
+        if (typeof data.penalty === "string") {
+            penaltyText = data.penalty;
+        } else if (data.penalty.penalty_text || data.penalty.text) {
+            penaltyText = data.penalty.penalty_text || data.penalty.text;
+        }
+    }
+    container.innerHTML += createSection("Penalty", penaltyText);
+
+    // Summary with copy button
     container.innerHTML += `
-    <div class="section">
-        <h2>Summary</h2>
-        <div class="value">${data.summary}</div>
-        <button onclick="copySummary('${data.summary.replace(/'/g, "\\'")}')"
-            style="margin-top:10px;background:#ff9800;color:white;padding:8px;border:none;border-radius:5px;">
-            Copy Summary
-        </button>
-    </div>
-`;
+        <div class="section">
+            <h2>Summary</h2>
+            <div class="value" id="summaryText">${data.summary || "No summary available."}</div>
+            <div class="button-row">
+                <button type="button" style="background:#ff9800;" onclick="copySummary()">
+                    Copy Summary
+                </button>
+                <button type="button" style="background:#4caf50;" onclick="downloadJSON()">
+                    Download JSON
+                </button>
+            </div>
+        </div>
+    `;
 
+    // AI Advice
     container.innerHTML += createSection("AI Advice", data.ai_advice);
-    container.innerHTML += createSection(
-    "Extracted Text (OCR)", 
-    `<div style="max-height:200px; overflow-y:auto; white-space:pre-wrap;">${data.raw_text}</div>`);
-    container.innerHTML += `<button onclick='downloadJSON(${JSON.stringify(data)})'
-        style="margin-top:15px;background:#4caf50;color:white;padding:10px;border:none;border-radius:5px;">
-        Download JSON
-    </button>`;
 
-
-
+    // Raw OCR text
+    if (data.raw_text) {
+        container.innerHTML += createSection(
+            "Extracted Text (OCR)",
+            `<div style="max-height:200px; overflow-y:auto; white-space:pre-wrap;">${data.raw_text}</div>`
+        );
+    }
 }
 
 function createSection(title, content) {
@@ -188,23 +202,34 @@ function createSection(title, content) {
         </div>
     `;
 }
-function downloadJSON(data) {
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+
+function copySummary() {
+    const el = document.getElementById("summaryText");
+    const text = el ? el.innerText : "";
+    if (!text) {
+        alert("No summary to copy.");
+        return;
+    }
+
+    navigator.clipboard.writeText(text)
+        .then(() => alert("Summary copied!"))
+        .catch(() => alert("Failed to copy summary."));
+}
+
+function downloadJSON() {
+    if (!lastResult) {
+        alert("No result available to download.");
+        return;
+    }
+
+    const blob = new Blob([JSON.stringify(lastResult, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
     a.download = "docreader_result.json";
     a.click();
     URL.revokeObjectURL(url);
-
-
-    function copySummary(text) {
-    navigator.clipboard.writeText(text);
-    alert("Summary copied!");
 }
-
-}
-
 </script>
 
 </body>
