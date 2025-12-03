@@ -7,9 +7,111 @@
         body {
             font-family: Inter, Arial, sans-serif;
             background: #f0f2f5;
-            padding: 30px;
+            padding: 20px;
         }
 
+        /* AUTH STYLES */
+        #auth-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .auth-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .auth-forms {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .auth-form {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            min-width: 250px;
+        }
+
+        .auth-form h4 {
+            margin: 0 0 10px 0;
+        }
+
+        .auth-input {
+            display: block;
+            margin: 5px 0;
+            padding: 8px;
+            width: 100%;
+            border: none;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .auth-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .login-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .register-btn {
+            background: #2196F3;
+            color: white;
+        }
+
+        .logout-btn {
+            background: #f44336;
+            color: white;
+        }
+
+        #user-info {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            display: none;
+        }
+
+        #auth-message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        /* DOCUMENT HISTORY */
+        #document-history {
+            margin: 20px 0;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        /* ORIGINAL STYLES (KEEP) */
         .container {
             width: 550px;
             background: white;
@@ -29,6 +131,11 @@
             display: block;
             margin: auto;
             margin-bottom: 20px;
+            padding: 10px;
+            border: 2px dashed #ccc;
+            border-radius: 6px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         button {
@@ -43,6 +150,11 @@
 
         button:hover {
             background: #155fc4;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
         }
 
         #loader {
@@ -85,38 +197,294 @@
             flex: 1;
             text-align: center;
         }
+
+        .stats {
+            display: flex;
+            gap: 15px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        .stat-item {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
     </style>
 </head>
 
 <body>
-<div class="container">
-
-    <h1>DocReader</h1>
-
-    <form id="uploadForm">
-        <input type="file" id="pdfFile" accept="application/pdf" required>
-        <button type="submit" style="width:100%;">Analyze Document</button>
-    </form>
-
-    <!-- Loader -->
-    <div id="loader">
-        Analyzing your document… ⏳
+    <!-- AUTHENTICATION SECTION -->
+    <div id="auth-section">
+        <div class="auth-header">
+            <div>
+                <h2 style="margin: 0;">📄 DocReader - AI Document Analyzer</h2>
+                <p style="margin: 5px 0 0 0; opacity: 0.9;">Upload PDFs and get instant analysis</p>
+            </div>
+            
+            <div id="auth-forms" class="auth-forms">
+                <!-- Login Form -->
+                <div id="login-form" class="auth-form">
+                    <h4>Login</h4>
+                    <input type="email" id="login-email" class="auth-input" placeholder="Email">
+                    <input type="password" id="login-password" class="auth-input" placeholder="Password">
+                    <button onclick="login()" class="auth-btn login-btn">Login</button>
+                </div>
+                
+                <!-- Register Form -->
+                <div id="register-form" class="auth-form">
+                    <h4>Register</h4>
+                    <input type="email" id="register-email" class="auth-input" placeholder="Email">
+                    <input type="password" id="register-password" class="auth-input" placeholder="Password">
+                    <button onclick="register()" class="auth-btn register-btn">Register</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- User Info (shown after login) -->
+        <div id="user-info">
+            <h4 style="margin: 0 0 10px 0;">Welcome, <span id="user-email"></span>! 👋</h4>
+            <div class="stats">
+                <div class="stat-item">📊 Uploads today: <span id="daily-uploads">0</span>/10</div>
+                <div class="stat-item">📁 Total documents: <span id="total-documents">0</span></div>
+                <div class="stat-item">⭐ Plan: <span id="user-plan">Free</span></div>
+            </div>
+            <button onclick="logout()" class="auth-btn logout-btn">Logout</button>
+        </div>
+        
+        <!-- Messages -->
+        <div id="auth-message"></div>
     </div>
 
-    <!-- Output -->
-    <div id="output"></div>
+    <!-- DOCUMENT HISTORY -->
+    <div id="document-history">
+        <h3>📁 Your Document History</h3>
+        <button onclick="loadDocumentHistory()" style="margin-bottom: 15px;">Refresh History</button>
+        <div id="history-list"></div>
+    </div>
 
-</div>
+    <!-- MAIN UPLOAD CONTAINER -->
+    <div class="container">
+        <h1>Upload & Analyze</h1>
+
+        <form id="uploadForm">
+            <input type="file" id="pdfFile" accept="application/pdf" required>
+            <button type="submit" style="width:100%;" id="upload-btn">Analyze Document</button>
+        </form>
+
+        <!-- Loader -->
+        <div id="loader">
+            Analyzing your document… ⏳
+        </div>
+
+        <!-- Output -->
+        <div id="output"></div>
+    </div>
 
 <script>
+// ========== AUTHENTICATION FUNCTIONS ==========
+let currentUser = null;
 let lastResult = null;
 
+// Check if user is already logged in
+function checkExistingLogin() {
+    const savedUser = localStorage.getItem('docreader_user');
+    if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        showUserInfo();
+    }
+}
+
+// Show user info after login
+function showUserInfo() {
+    document.getElementById('auth-forms').style.display = 'none';
+    document.getElementById('user-info').style.display = 'block';
+    document.getElementById('user-email').textContent = currentUser.email;
+    
+    // Enable upload button
+    document.getElementById('upload-btn').disabled = false;
+    
+    // Show document history
+    document.getElementById('document-history').style.display = 'block';
+    
+    // Load user stats
+    loadUserStats();
+    loadDocumentHistory();
+}
+
+// Register function
+async function register() {
+    const email = document.getElementById('register-email').value;
+    const password = document.getElementById('register-password').value;
+    
+    if (!email || !password) {
+        showMessage('Please enter email and password', 'error');
+        return;
+    }
+    
+    showMessage('Registering...', 'info');
+    
+    try {
+        const response = await fetch('/api/register', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email, password})
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showMessage(`✅ Registered successfully!`, 'success');
+            // Auto login after registration
+            document.getElementById('login-email').value = email;
+            document.getElementById('login-password').value = password;
+            await login();
+        } else {
+            showMessage(`❌ Registration failed: ${data.error}`, 'error');
+        }
+    } catch (error) {
+        showMessage(`❌ Network error: ${error.message}`, 'error');
+    }
+}
+
+// Login function
+async function login() {
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    
+    if (!email || !password) {
+        showMessage('Please enter email and password', 'error');
+        return;
+    }
+    
+    showMessage('Logging in...', 'info');
+    
+    try {
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email, password})
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            currentUser = data;
+            // Save to localStorage
+            localStorage.setItem('docreader_user', JSON.stringify(data));
+            showMessage(`✅ Logged in as ${data.email}`, 'success');
+            showUserInfo();
+        } else {
+            showMessage(`❌ Login failed: ${data.error}`, 'error');
+        }
+    } catch (error) {
+        showMessage(`❌ Network error: ${error.message}`, 'error');
+    }
+}
+
+// Load user stats
+async function loadUserStats() {
+    if (!currentUser) return;
+    
+    try {
+        const response = await fetch(`/api/user?user_id=${currentUser.user_id}`);
+        if (response.ok) {
+            const data = await response.json();
+            document.getElementById('daily-uploads').textContent = data.daily_uploads || 0;
+            document.getElementById('total-documents').textContent = data.total_documents || 0;
+            document.getElementById('user-plan').textContent = data.plan || 'Free';
+        }
+    } catch (error) {
+        console.error('Failed to load user stats:', error);
+    }
+}
+
+// Logout function
+function logout() {
+    currentUser = null;
+    localStorage.removeItem('docreader_user');
+    document.getElementById('auth-forms').style.display = 'flex';
+    document.getElementById('user-info').style.display = 'none';
+    document.getElementById('document-history').style.display = 'none';
+    document.getElementById('upload-btn').disabled = true;
+    document.getElementById('output').innerHTML = '';
+    showMessage('Logged out successfully', 'info');
+    
+    // Clear forms
+    document.getElementById('login-email').value = '';
+    document.getElementById('login-password').value = '';
+    document.getElementById('register-email').value = '';
+    document.getElementById('register-password').value = '';
+}
+
+// Show messages
+function showMessage(text, type) {
+    const messageDiv = document.getElementById('auth-message');
+    messageDiv.textContent = text;
+    messageDiv.style.display = 'block';
+    messageDiv.style.backgroundColor = type === 'error' ? '#f44336' : 
+                                      type === 'success' ? '#4CAF50' : '#2196F3';
+    messageDiv.style.color = 'white';
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        messageDiv.style.display = 'none';
+    }, 5000);
+}
+
+// Load document history
+async function loadDocumentHistory() {
+    if (!currentUser) return;
+    
+    try {
+        const response = await fetch(`/api/documents?user_id=${currentUser.user_id}`);
+        const data = await response.json();
+        
+        if (response.ok) {
+            const listDiv = document.getElementById('history-list');
+            if (data.documents.length === 0) {
+                listDiv.innerHTML = '<p>No documents yet. Upload your first PDF!</p>';
+            } else {
+                let html = '<div style="display: grid; gap: 10px;">';
+                data.documents.forEach(doc => {
+                    const date = new Date(doc.upload_date).toLocaleDateString();
+                    const summary = doc.extracted_data?.summary || 'No summary';
+                    
+                    html += `
+                    <div class="history-item">
+                        <strong>${doc.filename}</strong>
+                        <small style="color: #666; margin-left: 10px;">${date}</small>
+                        <p style="margin: 5px 0; color: #555; font-size: 14px;">${summary}</p>
+                        <button onclick="viewDocument('${doc._id}')" style="font-size: 12px; padding: 4px 8px;">View Details</button>
+                    </div>`;
+                });
+                html += '</div>';
+                listDiv.innerHTML = html;
+            }
+        }
+    } catch (error) {
+        console.error('Failed to load history:', error);
+    }
+}
+
+// View document details (placeholder)
+function viewDocument(docId) {
+    alert(`Document ID: ${docId}\n\nFull document view coming soon!`);
+}
+
+// ========== ORIGINAL UPLOAD FUNCTIONS (MODIFIED) ==========
 document.getElementById("uploadForm").onsubmit = async function(e) {
     e.preventDefault();
 
+    // Check if user is logged in
+    if (!currentUser) {
+        showMessage('Please login first to upload documents', 'error');
+        return;
+    }
+
     const file = document.getElementById("pdfFile").files[0];
     if (!file) {
-        alert("Please choose a PDF file.");
+        showMessage('Please choose a PDF file', 'error');
         return;
     }
 
@@ -125,6 +493,7 @@ document.getElementById("uploadForm").onsubmit = async function(e) {
 
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("user_id", currentUser.user_id);  // ← ADD USER_ID
 
     try {
         const response = await fetch("/analyze", {
@@ -135,26 +504,32 @@ document.getElementById("uploadForm").onsubmit = async function(e) {
         const data = await response.json();
         document.getElementById("loader").style.display = "none";
 
-        lastResult = data; // save globally for downloadJSON
-
-        renderOutput(data);
+        if (response.ok) {
+            lastResult = data;
+            renderOutput(data);
+            // Refresh user stats and history
+            loadUserStats();
+            loadDocumentHistory();
+        } else {
+            showMessage(`Upload failed: ${data.error || 'Unknown error'}`, 'error');
+        }
     } catch (err) {
         document.getElementById("loader").style.display = "none";
-        alert("Something went wrong while analyzing the document.");
+        showMessage('Network error. Please try again.', 'error');
         console.error(err);
     }
 };
 
 function renderOutput(data) {
     const container = document.getElementById("output");
-    container.innerHTML = "";  // clear previous
+    container.innerHTML = "";
 
     container.innerHTML += createSection("Document Type", data.doc_type);
     container.innerHTML += createSection("Deadline", data.deadline);
     container.innerHTML += createSection("Actions Required", data.actions_required?.join("<br>"));
     container.innerHTML += createSection("Where to Submit", data.where_to_submit);
 
-    // Penalty (readable)
+    // Penalty
     let penaltyText = "None";
     if (data.penalty) {
         if (typeof data.penalty === "string") {
@@ -188,13 +563,13 @@ function renderOutput(data) {
     if (data.raw_text) {
         container.innerHTML += createSection(
             "Extracted Text (OCR)",
-            `<div style="max-height:200px; overflow-y:auto; white-space:pre-wrap;">${data.raw_text}</div>`
+            `<div style="max-height:200px; overflow-y:auto; white-space:pre-wrap; font-family: monospace; font-size: 12px;">${data.raw_text}</div>`
         );
     }
 }
 
 function createSection(title, content) {
-    if (!content) return "";
+    if (!content || content === "Not found") return "";
     return `
         <div class="section">
             <h2>${title}</h2>
@@ -207,18 +582,18 @@ function copySummary() {
     const el = document.getElementById("summaryText");
     const text = el ? el.innerText : "";
     if (!text) {
-        alert("No summary to copy.");
+        showMessage("No summary to copy", "error");
         return;
     }
 
     navigator.clipboard.writeText(text)
-        .then(() => alert("Summary copied!"))
-        .catch(() => alert("Failed to copy summary."));
+        .then(() => showMessage("Summary copied to clipboard!", "success"))
+        .catch(() => showMessage("Failed to copy summary", "error"));
 }
 
 function downloadJSON() {
     if (!lastResult) {
-        alert("No result available to download.");
+        showMessage("No result available to download", "error");
         return;
     }
 
@@ -226,10 +601,17 @@ function downloadJSON() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "docreader_result.json";
+    a.download = `docreader_${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
 }
+
+// ========== INITIALIZATION ==========
+window.onload = function() {
+    checkExistingLogin();
+    // Disable upload button if not logged in
+    document.getElementById('upload-btn').disabled = !currentUser;
+};
 </script>
 
 </body>

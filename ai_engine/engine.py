@@ -1,13 +1,11 @@
 from ai_engine.ocr_cloud import extract_text_from_pdf_cloud
 from ai_engine.classifier import classify_text
-
 from ai_engine.extract_aadhaar import extract_aadhaar
 from ai_engine.extract_kyc import extract_kyc
 from ai_engine.extract_form import extract_form
 from ai_engine.extract_generic import extract_generic
 from ai_engine.extract_epfo import extract_epfo
 from ai_engine.extract_gst import extract_gst
-
 from ai_engine.text_cleaner import clean_text
 from ai_engine.extract_deadline import extract_deadline
 from ai_engine.extract_penalty import extract_penalty
