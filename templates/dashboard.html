@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DocReader - Dashboard</title>
+
+    <style>
+        body {
+            font-family: Inter, Arial, sans-serif;
+            background: #f0f2f5;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* NAVIGATION BAR */
+        .navbar {
+            background: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 24px;
+        }
+
+        .nav-title {
+            margin: 0;
+            color: #333;
+            font-size: 20px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info-nav {
+            display: none;
+            color: #666;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background: #d32f2f;
+        }
+
+        /* Dashboard Layout */
+        .dashboard-content {
+            display: flex;
+            gap: 30px;
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* PDF Preview Section */
+        .pdf-preview-section {
+            flex: 4;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 90px;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+
+        .pdf-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eef4ff;
+        }
+
+        .pdf-preview-header h3 {
+            margin: 0;
+            color: #1a73e8;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #pdf-viewer {
+            width: 100%;
+            min-height: 500px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            overflow: auto;
+        }
+
+        #pdf-viewer canvas {
+            max-width: 100%;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border-radius: 4px;
+        }
+
+        .pdf-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .pdf-controls button {
+            padding: 8px 16px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .pdf-controls button:hover {
+            background: #155fc4;
+        }
+
+        .pdf-controls button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-info {
+            font-weight: 500;
+            color: #555;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .zoom-info {
+            color: #666;
+            font-size: 14px;
+            margin-left: auto;
+        }
+
+        /* Analysis Section */
+        .analysis-section {
+            flex: 6;
+        }
+
+        /* Container */
+        .container {
+            width: 100%;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #1a73e8;
+        }
+
+        input[type="file"] {
+            display: block;
+            margin: auto;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 2px dashed #ccc;
+            border-radius: 6px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 14px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: #155fc4;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        #loader {
+            display: none;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 18px;
+            color: #444;
+        }
+
+        .section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #eef4ff;
+            border-radius: 8px;
+        }
+
+        .section h2 {
+            margin-top: 0;
+            font-size: 18px;
+            color: #1a4bb8;
+            border-bottom: 1px solid #c9d8ff;
+            padding-bottom: 5px;
+        }
+
+        .value {
+            font-weight: 500;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .button-row {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .button-row button {
+            flex: 1;
+            text-align: center;
+        }
+
+        /* DOCUMENT HISTORY */
+        #document-history {
+            margin: 20px 0;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        /* Messages */
+        #auth-message {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        /* PDF Loading */
+        .pdf-loading {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+        }
+
+        .pdf-placeholder {
+            text-align: center;
+            color: #888;
+            padding: 60px 20px;
+        }
+
+        .pdf-placeholder .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .dashboard-content {
+                flex-direction: column;
+            }
+            
+            .pdf-preview-section {
+                position: static;
+                max-height: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- NAVIGATION BAR -->
+    <div class="navbar">
+        <div class="nav-left">
+            <div class="logo">📄</div>
+            <h2 class="nav-title">DocReader - Dashboard</h2>
+        </div>
+        
+        <div class="nav-right">
+            <div class="user-info-nav" id="user-info-nav">
+                <span>Welcome, <strong id="nav-user-email"></strong></span>
+                <span style="margin: 0 10px;">•</span>
+                <span>📊 <span id="nav-daily-uploads">0</span>/10 today</span>
+            </div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <!-- DASHBOARD CONTENT (Two Columns) -->
+    <div class="dashboard-content">
+        <!-- LEFT COLUMN: PDF PREVIEW -->
+        <div class="pdf-preview-section">
+            <div class="pdf-preview-header">
+                <h3><span>📄</span> PDF Preview</h3>
+                <div class="zoom-info">Zoom: <span id="zoom-level">100%</span></div>
+            </div>
+            
+            <div id="pdf-viewer">
+                <div class="pdf-placeholder" id="pdf-placeholder">
+                    <div class="icon">📄</div>
+                    <p>Upload a PDF to preview it here</p>
+                    <small>Supported: PDF documents up to 50MB</small>
+                </div>
+            </div>
+            
+            <div class="pdf-controls">
+                <div class="control-group">
+                    <button id="prev-page" onclick="prevPage()" disabled>
+                        ◀ Previous
+                    </button>
+                    <div class="page-info">
+                        Page: <span id="page-num">-</span> / <span id="page-count">-</span>
+                    </div>
+                    <button id="next-page" onclick="nextPage()" disabled>
+                        Next ▶
+                    </button>
+                </div>
+                
+                <div class="control-group">
+                    <button onclick="zoomOut()" id="zoom-out">
+                        Zoom Out -
+                    </button>
+                    <button onclick="zoomIn()" id="zoom-in">
+                        Zoom In +
+                    </button>
+                    <button onclick="fitToWidth()">
+                        Fit Width
+                    </button>
+                    <button onclick="resetZoom()">
+                        Reset (100%)
+                    </button>
+                </div>
+                
+                <div class="control-group">
+                    <button onclick="downloadPDF()" id="download-pdf" disabled>
+                        ⬇ Download
+                    </button>
+                    <button onclick="printPDF()" id="print-pdf" disabled>
+                        🖨️ Print
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: UPLOAD & ANALYSIS -->
+        <div class="analysis-section">
+            <!-- DOCUMENT HISTORY -->
+            <div id="document-history">
+                <h3>📁 Your Document History</h3>
+                <button onclick="loadDocumentHistory()" style="margin-bottom: 15px;">Refresh History</button>
+                <div id="history-list"></div>
+            </div>
+
+            <!-- MAIN UPLOAD CONTAINER -->
+            <div class="container">
+                <h1>Upload & Analyze</h1>
+
+                <form id="uploadForm">
+                    <input type="file" id="pdfFile" accept="application/pdf" required>
+                    <button type="submit" style="width:100%;" id="upload-btn">Analyze Document</button>
+                </form>
+
+                <!-- Loader -->
+                <div id="loader">
+                    Analyzing your document… ⏳
+                </div>
+
+                <!-- Output -->
+                <div id="output"></div>
+            </div>
+
+            <!-- Messages -->
+            <div id="auth-message"></div>
+        </div>
+    </div>
+
+<script>
+// ========== GLOBAL VARIABLES ==========
+let currentUser = null;
+let lastResult = null;
+let pdfDoc = null;
+let currentPage = 1;
+let currentZoom = 1.0;
+let pageRendering = false;
+let pageNumPending = null;
+
+// ========== INITIALIZATION ==========
+window.onload = async function() {
+    // Check authentication
+    const user = localStorage.getItem('docreader_user');
+    
+    if (!user) {
+        window.location.href = '/login';
+        return;
+    }
+    
+    // User is logged in
+    currentUser = JSON.parse(user);
+    
+    // Show user info
+    document.getElementById('nav-user-email').textContent = currentUser.email;
+    document.getElementById('user-info-nav').style.display = 'block';
+    document.getElementById('upload-btn').disabled = false;
+    document.getElementById('document-history').style.display = 'block';
+    
+    // Load data
+    loadUserStats();
+    loadDocumentHistory();
+    
+    // Initialize PDF placeholder
+    showPDFPlaceholder();
+};
+
+// ========== PDF FUNCTIONS ==========
+
+// Load PDF.js library
+async function loadPDFJS() {
+    if (typeof window.pdfjsLib !== 'undefined') {
+        return window.pdfjsLib;
+    }
+    
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+        script.onload = function() {
+            console.log('PDF.js loaded');
+            window.pdfjsLib = window['pdfjs-dist/build/pdf'];
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = 
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            resolve(window.pdfjsLib);
+        };
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
+// Show PDF placeholder
+function showPDFPlaceholder() {
+    const viewer = document.getElementById('pdf-viewer');
+    viewer.innerHTML = `
+        <div class="pdf-placeholder" id="pdf-placeholder">
+            <div class="icon">📄</div>
+            <p>Upload a PDF to preview it here</p>
+            <small>Supported: PDF documents up to 50MB</small>
+        </div>
+    `;
+    
+    // Reset controls
+    document.getElementById('page-num').textContent = '-';
+    document.getElementById('page-count').textContent = '-';
+    document.getElementById('zoom-level').textContent = '100%';
+    document.getElementById('prev-page').disabled = true;
+    document.getElementById('next-page').disabled = true;
+    document.getElementById('zoom-out').disabled = true;
+    document.getElementById('zoom-in').disabled = true;
+    document.getElementById('download-pdf').disabled = true;
+    document.getElementById('print-pdf').disabled = true;
+}
+
+// Load PDF from file
+async function loadPDF(file) {
+    console.log('Loading PDF:', file.name);
+    
+    if (!file || file.type !== 'application/pdf') {
+        showMessage('Please select a PDF file', 'error');
+        return false;
+    }
+    
+    try {
+        showMessage('Loading PDF preview...', 'info');
+        
+        // Load PDF.js library
+        const pdfjsLib = await loadPDFJS();
+        
+        // Hide placeholder
+        document.getElementById('pdf-placeholder').style.display = 'none';
+        
+        // Show loading
+        const viewer = document.getElementById('pdf-viewer');
+        viewer.innerHTML = '<div class="pdf-loading">Loading PDF preview...</div>';
+        
+        // Convert file to URL
+        const fileURL = URL.createObjectURL(file);
+        
+        // Load PDF document
+        const loadingTask = pdfjsLib.getDocument(fileURL);
+        pdfDoc = await loadingTask.promise;
+        console.log('PDF loaded with', pdfDoc.numPages, 'pages');
+        
+        // Reset state
+        currentPage = 1;
+        currentZoom = 1.0;
+        
+        // Update page info
+        document.getElementById('page-count').textContent = pdfDoc.numPages;
+        
+        // Enable controls
+        document.getElementById('prev-page').disabled = false;
+        document.getElementById('next-page').disabled = false;
+        document.getElementById('zoom-out').disabled = false;
+        document.getElementById('zoom-in').disabled = false;
+        document.getElementById('download-pdf').disabled = false;
+        document.getElementById('print-pdf').disabled = false;
+        
+        // Store file for download
+        window.currentPDFFile = file;
+        
+        // Render first page
+        await renderPage(currentPage);
+        
+        showMessage('PDF preview loaded', 'success');
+        return true;
+        
+    } catch (error) {
+        console.error('Error loading PDF:', error);
+        showMessage('Failed to load PDF preview: ' + error.message, 'error');
+        showPDFPlaceholder();
+        return false;
+    }
+}
+
+// Render a page
+async function renderPage(num) {
+    if (!pdfDoc) {
+        console.error('No PDF document loaded');
+        return;
+    }
+    
+    if (pageRendering) {
+        pageNumPending = num;
+        return;
+    }
+    
+    pageRendering = true;
+    
+    try {
+        // Get page
+        const page = await pdfDoc.getPage(num);
+        
+        // Get canvas
+        let viewer = document.getElementById('pdf-viewer');
+        let canvas = document.getElementById('pdf-canvas');
+        
+        if (!canvas) {
+            canvas = document.createElement('canvas');
+            canvas.id = 'pdf-canvas';
+            viewer.innerHTML = '';
+            viewer.appendChild(canvas);
+        }
+        
+        const ctx = canvas.getContext('2d');
+        
+        // Set canvas size
+        const viewport = page.getViewport({ scale: currentZoom });
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        
+        // Render page
+        await page.render({
+            canvasContext: ctx,
+            viewport: viewport
+        }).promise;
+        
+        // Update UI
+        document.getElementById('page-num').textContent = num;
+        document.getElementById('zoom-level').textContent = Math.round(currentZoom * 100) + '%';
+        document.getElementById('prev-page').disabled = num <= 1;
+        document.getElementById('next-page').disabled = num >= pdfDoc.numPages;
+        
+        pageRendering = false;
+        
+        // Render pending page
+        if (pageNumPending !== null) {
+            renderPage(pageNumPending);
+            pageNumPending = null;
+        }
+        
+    } catch (error) {
+        console.error('Error rendering page:', error);
+        pageRendering = false;
+        showMessage('Error rendering page', 'error');
+    }
+}
+
+// Navigation functions
+function prevPage() {
+    if (!pdfDoc || currentPage <= 1) return;
+    currentPage--;
+    renderPage(currentPage);
+}
+
+function nextPage() {
+    if (!pdfDoc || currentPage >= pdfDoc.numPages) return;
+    currentPage++;
+    renderPage(currentPage);
+}
+
+// Zoom functions
+function zoomIn() {
+    if (!pdfDoc || currentZoom >= 3.0) return;
+    currentZoom += 0.1;
+    renderPage(currentPage);
+}
+
+function zoomOut() {
+    if (!pdfDoc || currentZoom <= 0.5) return;
+    currentZoom -= 0.1;
+    renderPage(currentPage);
+}
+
+function resetZoom() {
+    if (!pdfDoc) return;
+    currentZoom = 1.0;
+    renderPage(currentPage);
+}
+
+function fitToWidth() {
+    if (!pdfDoc) return;
+    currentZoom = 1.2;
+    renderPage(currentPage);
+}
+
+// Download PDF
+function downloadPDF() {
+    if (!window.currentPDFFile) {
+        showMessage('No PDF to download', 'error');
+        return;
+    }
+    
+    const url = URL.createObjectURL(window.currentPDFFile);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = window.currentPDFFile.name || 'document.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Print PDF
+function printPDF() {
+    if (!window.currentPDFFile) {
+        showMessage('No PDF to print', 'error');
+        return;
+    }
+    
+    const url = URL.createObjectURL(window.currentPDFFile);
+    const printWindow = window.open(url);
+    
+    if (printWindow) {
+        printWindow.onload = function() {
+            printWindow.print();
+        };
+    }
+}
+
+// ========== UPLOAD FUNCTION ==========
+document.getElementById("uploadForm").onsubmit = async function(e) {
+    e.preventDefault();
+
+    if (!currentUser) {
+        showMessage('Please login first to upload documents', 'error');
+        return;
+    }
+
+    const file = document.getElementById("pdfFile").files[0];
+    if (!file) {
+        showMessage('Please choose a PDF file', 'error');
+        return;
+    }
+
+    // Load PDF preview FIRST
+    const pdfLoaded = await loadPDF(file);
+    
+    if (!pdfLoaded) {
+        return;
+    }
+
+    document.getElementById("loader").style.display = "block";
+    document.getElementById("output").innerHTML = "";
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("user_id", currentUser.user_id);
+
+    try {
+        const response = await fetch("/analyze", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+        document.getElementById("loader").style.display = "none";
+
+        if (response.ok) {
+            lastResult = data;
+            renderOutput(data);
+            loadUserStats();
+            loadDocumentHistory();
+        } else {
+            showMessage(`Upload failed: ${data.error || 'Unknown error'}`, 'error');
+        }
+    } catch (err) {
+        document.getElementById("loader").style.display = "none";
+        showMessage('Network error. Please try again.', 'error');
+        console.error(err);
+    }
+};
+
+// ========== EXISTING FUNCTIONS ==========
+
+// Load user stats
+async function loadUserStats() {
+    if (!currentUser) return;
+    
+    try {
+        const response = await fetch(`/api/user?user_id=${currentUser.user_id}`);
+        if (response.ok) {
+            const data = await response.json();
+            document.getElementById('nav-daily-uploads').textContent = data.daily_uploads || 0;
+        }
+    } catch (error) {
+        console.error('Failed to load user stats:', error);
+    }
+}
+
+// Logout function
+function logout() {
+    localStorage.removeItem('docreader_user');
+    window.location.href = '/';
+}
+
+// Show messages
+function showMessage(text, type) {
+    const messageDiv = document.getElementById('auth-message');
+    messageDiv.textContent = text;
+    messageDiv.style.display = 'block';
+    messageDiv.style.backgroundColor = type === 'error' ? '#f44336' : 
+                                      type === 'success' ? '#4CAF50' : '#2196F3';
+    messageDiv.style.color = 'white';
+    
+    setTimeout(() => {
+        messageDiv.style.display = 'none';
+    }, 5000);
+}
+
+// Load document history
+async function loadDocumentHistory() {
+    if (!currentUser) return;
+    
+    try {
+        const response = await fetch(`/api/documents?user_id=${currentUser.user_id}`);
+        const data = await response.json();
+        
+        if (response.ok) {
+            const listDiv = document.getElementById('history-list');
+            if (data.documents.length === 0) {
+                listDiv.innerHTML = '<p>No documents yet. Upload your first PDF!</p>';
+            } else {
+                let html = '<div style="display: grid; gap: 10px;">';
+                data.documents.forEach(doc => {
+                    const date = new Date(doc.upload_date).toLocaleDateString();
+                    const summary = doc.extracted_data?.summary || 'No summary';
+                    
+                    html += `
+                    <div class="history-item">
+                        <strong>${doc.filename}</strong>
+                        <small style="color: #666; margin-left: 10px;">${date}</small>
+                        <p style="margin: 5px 0; color: #555; font-size: 14px;">${summary}</p>
+                        <button onclick="viewDocument('${doc._id}')" style="font-size: 12px; padding: 4px 8px;">View Details</button>
+                    </div>`;
+                });
+                html += '</div>';
+                listDiv.innerHTML = html;
+            }
+        }
+    } catch (error) {
+        console.error('Failed to load history:', error);
+    }
+}
+
+// View document details
+function viewDocument(docId) {
+    alert(`Document ID: ${docId}\n\nFull document view coming soon!`);
+}
+
+// Render output
+function renderOutput(data) {
+    const container = document.getElementById("output");
+    container.innerHTML = "";
+
+    container.innerHTML += createSection("Document Type", data.doc_type);
+    container.innerHTML += createSection("Deadline", data.deadline);
+    container.innerHTML += createSection("Actions Required", data.actions_required?.join("<br>"));
+    container.innerHTML += createSection("Where to Submit", data.where_to_submit);
+
+    // Penalty
+    let penaltyText = "None";
+    if (data.penalty) {
+        if (typeof data.penalty === "string") {
+            penaltyText = data.penalty;
+        } else if (data.penalty.penalty_text || data.penalty.text) {
+            penaltyText = data.penalty.penalty_text || data.penalty.text;
+        }
+    }
+    container.innerHTML += createSection("Penalty", penaltyText);
+
+    // Summary with copy button
+    container.innerHTML += `
+        <div class="section">
+            <h2>Summary</h2>
+            <div class="value" id="summaryText">${data.summary || "No summary available."}</div>
+            <div class="button-row">
+                <button type="button" style="background:#ff9800;" onclick="copySummary()">
+                    Copy Summary
+                </button>
+                <button type="button" style="background:#4caf50;" onclick="downloadJSON()">
+                    Download JSON
+                </button>
+            </div>
+        </div>
+    `;
+
+    // AI Advice
+    container.innerHTML += createSection("AI Advice", data.ai_advice);
+
+    // Raw OCR text
+    if (data.raw_text) {
+        container.innerHTML += createSection(
+            "Extracted Text (OCR)",
+            `<div style="max-height:200px; overflow-y:auto; white-space:pre-wrap; font-family: monospace; font-size: 12px;">${data.raw_text}</div>`
+        );
+    }
+}
+
+function createSection(title, content) {
+    if (!content || content === "Not found") return "";
+    return `
+        <div class="section">
+            <h2>${title}</h2>
+            <div class="value">${content}</div>
+        </div>
+    `;
+}
+
+function copySummary() {
+    const el = document.getElementById("summaryText");
+    const text = el ? el.innerText : "";
+    if (!text) {
+        showMessage("No summary to copy", "error");
+        return;
+    }
+
+    navigator.clipboard.writeText(text)
+        .then(() => showMessage("Summary copied to clipboard!", "success"))
+        .catch(() => showMessage("Failed to copy summary", "error"));
+}
+
+function downloadJSON() {
+    if (!lastResult) {
+        showMessage("No result available to download", "error");
+        return;
+    }
+
+    const blob = new Blob([JSON.stringify(lastResult, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `docreader_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>

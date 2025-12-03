@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DocReader - AI Document Analyzer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        /* Navigation */
+        .navbar {
+            background: white;
+            padding: 20px 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #1a73e8;
+        }
+        
+        .logo-icon {
+            font-size: 32px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: #555;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #1a73e8;
+        }
+        
+        .btn {
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #1a73e8;
+            color: white;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: #155fc4;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 115, 232, 0.3);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: #1a73e8;
+            border: 2px solid #1a73e8;
+        }
+        
+        .btn-secondary:hover {
+            background: #1a73e8;
+            color: white;
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 80px 40px;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            color: #222;
+            background: linear-gradient(135deg, #1a73e8 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero p {
+            font-size: 1.25rem;
+            color: #666;
+            max-width: 800px;
+            margin: 0 auto 40px;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 80px 40px;
+            background: white;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 60px;
+            color: #222;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #1a73e8;
+        }
+        
+        /* How It Works */
+        .how-it-works {
+            padding: 80px 40px;
+            background: #f5f7fa;
+        }
+        
+        .steps {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+        }
+        
+        .step {
+            text-align: center;
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: #1a73e8;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0 auto 20px;
+        }
+        
+        /* Pricing */
+        .pricing {
+            padding: 80px 40px;
+            background: white;
+        }
+        
+        .pricing-cards {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+        }
+        
+        .pricing-card {
+            background: #f8f9fa;
+            padding: 40px;
+            border-radius: 12px;
+            flex: 1;
+            min-width: 300px;
+            text-align: center;
+            border: 2px solid #e1e5e9;
+        }
+        
+        .pricing-card.featured {
+            border-color: #1a73e8;
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(26, 115, 232, 0.2);
+        }
+        
+        .price {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #1a73e8;
+            margin: 20px 0;
+        }
+        
+        .price span {
+            font-size: 1rem;
+            color: #666;
+        }
+        
+        /* Footer */
+        .footer {
+            background: #222;
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .footer-links a {
+            color: #aaa;
+            text-decoration: none;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .copyright {
+            color: #aaa;
+            margin-top: 30px;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .navbar {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-icon">📄</span>
+            <span>DocReader</span>
+        </div>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#how-it-works">How It Works</a>
+            <a href="#pricing">Pricing</a>
+            <a href="/login" class="btn btn-secondary">Sign In</a>
+            <a href="/register" class="btn btn-primary">Get Started Free</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>AI-Powered Document Analysis</h1>
+        <p>Upload any PDF document and instantly extract deadlines, amounts, actions, and insights. No manual reading required.</p>
+        <div class="cta-buttons">
+            <a href="/register" class="btn btn-primary">Start Analyzing Free</a>
+            <a href="#how-it-works" class="btn btn-secondary">See How It Works</a>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features" id="features">
+        <h2 class="section-title">Powerful Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3>Smart OCR</h3>
+                <p>Extract text from scanned PDFs, images, and documents with advanced OCR technology.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📅</div>
+                <h3>Deadline Detection</h3>
+                <p>Automatically identify and highlight important dates and deadlines in your documents.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💰</div>
+                <h3>Amount Extraction</h3>
+                <p>Find monetary amounts, penalties, fees, and financial information instantly.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Action Items</h3>
+                <p>Get clear action items and recommendations from your documents.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>AI Summarization</h3>
+                <p>Get concise summaries and AI-powered insights about your documents.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📁</div>
+                <h3>Document History</h3>
+                <p>Access your analyzed documents anytime with full search and organization.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works" id="how-it-works">
+        <h2 class="section-title">How It Works</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Upload PDF</h3>
+                <p>Drag and drop your PDF document or select from your computer.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>AI Analysis</h3>
+                <p>Our AI extracts text, identifies key elements, and analyzes content.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Get Insights</h3>
+                <p>Receive structured analysis with deadlines, amounts, and action items.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="pricing" id="pricing">
+        <h2 class="section-title">Simple Pricing</h2>
+        <div class="pricing-cards">
+            <div class="pricing-card">
+                <h3>Free</h3>
+                <div class="price">$0<span>/month</span></div>
+                <ul style="list-style: none; padding: 0; text-align: left; margin: 30px 0;">
+                    <li>✓ 10 documents/month</li>
+                    <li>✓ Basic OCR & extraction</li>
+                    <li>✓ 7-day history</li>
+                    <li>✓ Email support</li>
+                </ul>
+                <a href="/register" class="btn btn-secondary">Get Started</a>
+            </div>
+            <div class="pricing-card featured">
+                <div style="background: #1a73e8; color: white; padding: 5px 15px; border-radius: 20px; display: inline-block; margin-bottom: 15px;">MOST POPULAR</div>
+                <h3>Pro</h3>
+                <div class="price">$9<span>/month</span></div>
+                <ul style="list-style: none; padding: 0; text-align: left; margin: 30px 0;">
+                    <li>✓ Unlimited documents</li>
+                    <li>✓ Advanced AI analysis</li>
+                    <li>✓ Full history access</li>
+                    <li>✓ Priority support</li>
+                    <li>✓ Export features</li>
+                    <li>✓ Team sharing</li>
+                </ul>
+                <a href="/register" class="btn btn-primary">Upgrade to Pro</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="hero" style="background: linear-gradient(135deg, #1a73e8 0%, #764ba2 100%); color: white; padding: 60px 40px;">
+        <h2 style="color: white; -webkit-text-fill-color: white;">Start Analyzing Documents Today</h2>
+        <p style="color: rgba(255,255,255,0.9);">Join thousands of users who save hours every week with automated document analysis.</p>
+        <div class="cta-buttons">
+            <a href="/register" class="btn" style="background: white; color: #1a73e8;">Get Started Free</a>
+            <a href="/login" class="btn" style="background: transparent; border: 2px solid white; color: white;">Sign In</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="logo" style="color: white; justify-content: center; margin-bottom: 20px;">
+            <span class="logo-icon">📄</span>
+            <span>DocReader</span>
+        </div>
+        <p>AI-powered document analysis for everyone.</p>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Contact</a>
+            <a href="#">API</a>
+            <a href="#">Documentation</a>
+        </div>
+        <div class="copyright">
+            © 2024 DocReader. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if(targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if(targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
