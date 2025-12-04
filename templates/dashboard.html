@@ -322,6 +322,183 @@
                 max-height: none;
             }
         }
+
+        /* ========== DAY 6: ENHANCED UX STYLES ========== */
+
+/* Loading Animations */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 4px;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Progress bar */
+.progress-container {
+    width: 100%;
+    height: 6px;
+    background: #e0e0e0;
+    border-radius: 3px;
+    margin: 15px 0;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+    width: 0%;
+    transition: width 0.5s ease;
+    border-radius: 3px;
+}
+
+/* Fade in animation */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Bounce animation */
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+    40% {transform: translateY(-15px);}
+    60% {transform: translateY(-7px);}
+}
+
+.bounce {
+    animation: bounce 1s;
+}
+
+/* Pulse animation */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+/* Shake animation for errors */
+@keyframes shake {
+    0%, 100% {transform: translateX(0);}
+    10%, 30%, 50%, 70%, 90% {transform: translateX(-5px);}
+    20%, 40%, 60%, 80% {transform: translateX(5px);}
+}
+
+.shake {
+    animation: shake 0.5s;
+}
+
+/* Success checkmark */
+.checkmark {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 3;
+    stroke: #4CAF50;
+    stroke-miterlimit: 10;
+    margin: 20px auto;
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark-circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 3;
+    stroke-miterlimit: 10;
+    stroke: #4CAF50;
+    fill: none;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark-check {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+@keyframes stroke {
+    100% { stroke-dashoffset: 0; }
+}
+
+/* Enhanced loader */
+.enhanced-loader {
+    text-align: center;
+    padding: 30px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    margin: 20px 0;
+}
+
+/* File info card */
+.file-info-card {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+    border-left: 4px solid #1a73e8;
+}
+
+.file-info-card div {
+    display: flex;
+    justify-content: space-between;
+    margin: 5px 0;
+    color: #555;
+}
+
+.file-info-card strong {
+    color: #333;
+}
+
+/* Message styles */
+.message-box {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    z-index: 1000;
+    min-width: 300px;
+    max-width: 400px;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    display: none;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.message-box.hide {
+    animation: slideOut 0.3s ease-in forwards;
+}
+
+@keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+
+/* Status colors */
+.status-processing { color: #ff9800; }
+.status-success { color: #4CAF50; }
+.status-error { color: #f44336; }
+.status-info { color: #2196F3; }
     </style>
 </head>
 
@@ -711,10 +888,11 @@ function printPDF() {
     }
 }
 
-// ========== UPLOAD FUNCTION ==========
+// ========== ENHANCED UPLOAD FUNCTION ==========
 document.getElementById("uploadForm").onsubmit = async function(e) {
     e.preventDefault();
 
+    // Check if user is logged in
     if (!currentUser) {
         showMessage('Please login first to upload documents', 'error');
         return;
@@ -726,43 +904,243 @@ document.getElementById("uploadForm").onsubmit = async function(e) {
         return;
     }
 
-    // Load PDF preview FIRST
-    const pdfLoaded = await loadPDF(file);
-    
-    if (!pdfLoaded) {
+    // Validate file
+    const validation = validateFile(file);
+    if (!validation.valid) {
+        showMessage(validation.message, 'error');
         return;
     }
 
-    document.getElementById("loader").style.display = "block";
-    document.getElementById("output").innerHTML = "";
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("user_id", currentUser.user_id);
+    // Show enhanced loading state
+    showEnhancedLoading(file);
+    
+    // Disable upload button
+    const uploadBtn = document.getElementById("upload-btn");
+    const originalBtnText = uploadBtn.innerHTML;
+    uploadBtn.disabled = true;
+    uploadBtn.innerHTML = '<span class="pulse">⏳</span> Processing...';
 
     try {
+        // Step 1: Load PDF preview
+        updateProgress(10, "Loading PDF preview...");
+        const pdfLoaded = await loadPDF(file);
+        
+        if (!pdfLoaded) {
+            throw new Error('Failed to load PDF preview');
+        }
+
+        // Step 2: Upload to backend
+        updateProgress(30, "Uploading to server...");
+        
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("user_id", currentUser.user_id);
+
         const response = await fetch("/analyze", {
             method: "POST",
             body: formData
         });
 
+        // Step 3: Processing
+        updateProgress(60, "Extracting text with OCR...");
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        updateProgress(80, "Analyzing document content...");
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
         const data = await response.json();
-        document.getElementById("loader").style.display = "none";
+        
+        // Step 4: Complete
+        updateProgress(100, "Analysis complete!");
 
         if (response.ok) {
             lastResult = data;
-            renderOutput(data);
-            loadUserStats();
-            loadDocumentHistory();
+            
+            // Show success animation
+            showSuccessAnimation();
+            
+            // Wait for animation, then show results
+            setTimeout(() => {
+                renderOutput(data);
+                showMessage('✅ Document analyzed successfully!', 'success');
+                
+                // Refresh user data
+                loadUserStats();
+                loadDocumentHistory();
+                
+                // Hide loader
+                document.getElementById("loader").style.display = "none";
+                
+            }, 1500);
+            
         } else {
-            showMessage(`Upload failed: ${data.error || 'Unknown error'}`, 'error');
+            throw new Error(data.error || 'Analysis failed');
         }
-    } catch (err) {
-        document.getElementById("loader").style.display = "none";
-        showMessage('Network error. Please try again.', 'error');
-        console.error(err);
+        
+    } catch (error) {
+        // Show error state
+        showErrorState(error.message);
+        showMessage(`❌ ${error.message}`, 'error');
+        
+    } finally {
+        // Re-enable upload button
+        uploadBtn.disabled = false;
+        uploadBtn.innerHTML = originalBtnText;
     }
 };
+
+// ========== HELPER FUNCTIONS ==========
+
+// File validation
+function validateFile(file) {
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    
+    if (!file) {
+        return { valid: false, message: 'No file selected' };
+    }
+    
+    if (file.type !== 'application/pdf') {
+        return { valid: false, message: 'Please select a PDF file (only .pdf files are supported)' };
+    }
+    
+    if (file.size > maxSize) {
+        const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+        return { 
+            valid: false, 
+            message: `File too large! Maximum size is 10MB. Your file: ${fileSizeMB}MB` 
+        };
+    }
+    
+    if (file.size === 0) {
+        return { valid: false, message: 'File is empty' };
+    }
+    
+    return { valid: true, message: 'File validated successfully' };
+}
+
+// Enhanced loading display
+function showEnhancedLoading(file) {
+    const loader = document.getElementById("loader");
+    const fileSizeKB = (file.size / 1024).toFixed(1);
+    const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+    
+    loader.innerHTML = `
+        <div class="enhanced-loader fade-in">
+            <div style="font-size: 48px; margin-bottom: 15px; color: #1a73e8;">📄</div>
+            <h3 style="margin: 10px 0; color: #333;">Analyzing Document</h3>
+            
+            <div class="file-info-card">
+                <div>
+                    <strong>File:</strong>
+                    <span>${file.name}</span>
+                </div>
+                <div>
+                    <strong>Size:</strong>
+                    <span>${fileSizeKB} KB (${fileSizeMB} MB)</span>
+                </div>
+                <div>
+                    <strong>Type:</strong>
+                    <span>PDF Document</span>
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            
+            <p id="progress-text" style="margin: 10px 0; color: #666; font-size: 14px;">
+                Starting analysis...
+            </p>
+            
+            <div style="margin-top: 20px; color: #888; font-size: 13px;">
+                <div>⏱️ Estimated time: 10-30 seconds</div>
+                <div>💡 Tip: Larger files take longer to process</div>
+            </div>
+        </div>
+    `;
+    loader.style.display = "block";
+}
+
+// Update progress
+function updateProgress(percent, text) {
+    const progressBar = document.getElementById("progress-bar");
+    const progressText = document.getElementById("progress-text");
+    
+    if (progressBar) {
+        progressBar.style.width = percent + "%";
+        
+        // Change color based on progress
+        if (percent < 30) {
+            progressBar.style.background = "linear-gradient(90deg, #ff9800, #ffb74d)";
+        } else if (percent < 70) {
+            progressBar.style.background = "linear-gradient(90deg, #2196F3, #64b5f6)";
+        } else {
+            progressBar.style.background = "linear-gradient(90deg, #4CAF50, #81c784)";
+        }
+    }
+    
+    if (progressText) {
+        progressText.textContent = text;
+        progressText.className = "";
+        
+        // Add status class
+        if (text.includes("Loading") || text.includes("Uploading")) {
+            progressText.classList.add("status-info");
+        } else if (text.includes("Extracting") || text.includes("Analyzing")) {
+            progressText.classList.add("status-processing");
+        } else if (text.includes("complete") || text.includes("Complete")) {
+            progressText.classList.add("status-success");
+        }
+    }
+}
+
+// Success animation
+function showSuccessAnimation() {
+    const output = document.getElementById("output");
+    
+    output.innerHTML = `
+        <div class="enhanced-loader fade-in" style="text-align: center;">
+            <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+                <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+            </svg>
+            
+            <h2 style="color: #4CAF50; margin: 15px 0;">Analysis Complete!</h2>
+            <p style="color: #666; margin-bottom: 20px;">Your document has been processed successfully.</p>
+            
+            <div style="display: flex; justify-content: center; gap: 10px; margin-top: 20px;">
+                <div class="skeleton" style="height: 40px; width: 120px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 40px; width: 120px; border-radius: 6px;"></div>
+            </div>
+            
+            <p style="color: #888; font-size: 13px; margin-top: 20px;">
+                Preparing your results...
+            </p>
+        </div>
+    `;
+}
+
+// Error state
+function showErrorState(errorMsg) {
+    const loader = document.getElementById("loader");
+    
+    loader.innerHTML = `
+        <div class="enhanced-loader shake" style="text-align: center;">
+            <div style="font-size: 64px; margin-bottom: 15px; color: #f44336;">❌</div>
+            <h3 style="color: #f44336; margin: 10px 0;">Processing Failed</h3>
+            <p style="color: #666; margin-bottom: 20px;">${errorMsg}</p>
+            <button onclick="retryUpload()" style="padding: 10px 20px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                Try Again
+            </button>
+        </div>
+    `;
+}
+
+// Retry function
+function retryUpload() {
+    document.getElementById("loader").style.display = "none";
+    document.getElementById("uploadForm").dispatchEvent(new Event('submit'));
+}
 
 // ========== EXISTING FUNCTIONS ==========
 
@@ -788,17 +1166,89 @@ function logout() {
 }
 
 // Show messages
-function showMessage(text, type) {
-    const messageDiv = document.getElementById('auth-message');
-    messageDiv.textContent = text;
-    messageDiv.style.display = 'block';
-    messageDiv.style.backgroundColor = type === 'error' ? '#f44336' : 
-                                      type === 'success' ? '#4CAF50' : '#2196F3';
-    messageDiv.style.color = 'white';
+// ========== ENHANCED MESSAGE SYSTEM ==========
+function showMessage(text, type, duration = 5000) {
+    // Remove existing message box if any
+    let messageBox = document.getElementById('enhanced-message-box');
+    if (!messageBox) {
+        messageBox = document.createElement('div');
+        messageBox.id = 'enhanced-message-box';
+        messageBox.className = 'message-box';
+        document.body.appendChild(messageBox);
+    }
     
+    // Clear and hide
+    messageBox.innerHTML = '';
+    messageBox.className = 'message-box';
+    messageBox.style.display = 'none';
+    
+    // Set content based on type
+    let icon = 'ℹ️';
+    let bgColor = '#2196F3';
+    let title = 'Information';
+    
+    switch(type) {
+        case 'error':
+            icon = '❌';
+            bgColor = '#f44336';
+            title = 'Error';
+            break;
+        case 'success':
+            icon = '✅';
+            bgColor = '#4CAF50';
+            title = 'Success';
+            break;
+        case 'warning':
+            icon = '⚠️';
+            bgColor = '#ff9800';
+            title = 'Warning';
+            break;
+        case 'info':
+            icon = 'ℹ️';
+            bgColor = '#2196F3';
+            title = 'Info';
+            break;
+    }
+    
+    messageBox.innerHTML = `
+        <div style="display: flex; gap: 12px; align-items: flex-start;">
+            <div style="font-size: 24px; flex-shrink: 0;">${icon}</div>
+            <div style="flex-grow: 1;">
+                <div style="font-weight: 600; margin-bottom: 4px; font-size: 14px;">${title}</div>
+                <div style="font-size: 14px; line-height: 1.4;">${text}</div>
+            </div>
+            <div onclick="hideMessage()" style="cursor: pointer; padding: 4px; margin: -4px -4px 0 0; font-size: 18px; opacity: 0.7; flex-shrink: 0;">
+                ✕
+            </div>
+        </div>
+    `;
+    
+    messageBox.style.display = 'block';
+    messageBox.style.backgroundColor = bgColor;
+    messageBox.style.color = 'white';
+    
+    // Slide in animation
     setTimeout(() => {
-        messageDiv.style.display = 'none';
-    }, 5000);
+        messageBox.classList.add('fade-in');
+    }, 10);
+    
+    // Auto-hide
+    if (duration > 0) {
+        setTimeout(() => {
+            hideMessage();
+        }, duration);
+    }
+}
+
+function hideMessage() {
+    const messageBox = document.getElementById('enhanced-message-box');
+    if (messageBox) {
+        messageBox.classList.add('hide');
+        setTimeout(() => {
+            messageBox.style.display = 'none';
+            messageBox.classList.remove('hide');
+        }, 300);
+    }
 }
 
 // Load document history
@@ -845,6 +1295,13 @@ function viewDocument(docId) {
 function renderOutput(data) {
     const container = document.getElementById("output");
     container.innerHTML = "";
+
+    container.classList.remove('fade-in');
+
+// Add fade in after a small delay
+setTimeout(() => {
+    container.classList.add('fade-in');
+}, 50);
 
     container.innerHTML += createSection("Document Type", data.doc_type);
     container.innerHTML += createSection("Deadline", data.deadline);
